@@ -20,7 +20,6 @@
                 <version>3.2.1</version>
                 <executions>
                     <execution>
-<!--                        <id>shade-my-jar</id>-->
                         <phase>package</phase>
                         <goals>
                             <goal>shade</goal>
