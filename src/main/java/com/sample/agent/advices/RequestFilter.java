@@ -17,7 +17,19 @@ public class RequestFilter implements ContainerRequestFilter {
     public static Object intercept(@SuperCall Callable<?> zuper,  @AllArguments Object... args) throws Exception {
         try {
             String tc =  ((ContainerRequestContext)args[0]).getHeaderString("testcase");
-            System.out.println("Agent TC:" + tc);
+            String pathInfo =  ((ContainerRequestContext)args[0]).getUriInfo().getPath();
+            System.out.println("Agent uri-path: " + pathInfo);
+
+            if("register" == pathInfo){
+                // Get variable to store tc-ID: @ID-ABC
+            }
+
+            if("tc-revoke" == pathInfo){
+                //
+                // Generate data end insert to DB;
+            }
+
+            System.out.println("Agent TC: " + tc);
             return zuper.call();
         } finally {
             System.out.println("method end");
