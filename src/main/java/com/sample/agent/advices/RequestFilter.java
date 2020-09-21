@@ -1,4 +1,4 @@
-package com.sample.jersey.filter;
+package com.sample.agent.advices;
 
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
@@ -11,23 +11,23 @@ import java.io.IOException;
 import java.util.concurrent.Callable;
 
 @PreMatching
-public class AgentFilter implements ContainerRequestFilter {
+public class RequestFilter implements ContainerRequestFilter {
 
     @RuntimeType
     public static Object intercept(@SuperCall Callable<?> zuper,  @AllArguments Object... args) throws Exception {
-        System.out.println("Agent method start");
         try {
-//            new AgentFilter().filter(requestContext);
+            String tc =  ((ContainerRequestContext)args[0]).getHeaderString("testcase");
+            System.out.println("Agent TC:" + tc);
             return zuper.call();
         } finally {
             System.out.println("method end");
         }
     }
 
+    /**
+     * Override to use ContainerRequestContext
+     */
     @Override
     public void filter (ContainerRequestContext requestContext) throws IOException {
-        System.out.println("AGENT filtering ... ");
-        String tc = requestContext.getHeaderString("testcase");
-        System.out.println(tc);
     }
 }

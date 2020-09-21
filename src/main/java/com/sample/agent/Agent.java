@@ -2,8 +2,7 @@ package com.sample.agent;
 
 import com.sample.agent.advices.MethodAddition;
 import com.sample.agent.advices.MethodAdvice;
-import com.sample.jersey.filter.AgentFilter;
-import net.bytebuddy.ByteBuddy;
+import com.sample.agent.advices.RequestFilter;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.asm.Advice;
 import net.bytebuddy.description.modifier.Visibility;
@@ -30,7 +29,7 @@ public class Agent {
      */
     public static void premain(String agentArgs, Instrumentation instrumentation) {
 
-        System.out.println("Start Premain Agent to instrument a freshly started JV");
+        System.out.println("Start Premain Agent to instrument a freshly started JVMs");
         myIntercept(agentArgs, instrumentation);
     }
 
@@ -56,7 +55,7 @@ public class Agent {
                               .and(ElementMatchers.not(ElementMatchers.nameStartsWith(EXCLUDE_PACKAGE_INSTRUMENT))))
                 .transform((builder, typeDescription, classLoader, module) -> builder
                         .method(named("filter"))
-                        .intercept(MethodDelegation.to(AgentFilter.class))
+                        .intercept(MethodDelegation.to(RequestFilter.class))
                 ).installOn(instrumentation);
     }
 
