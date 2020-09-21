@@ -4,7 +4,6 @@ import com.sample.agent.advices.MethodAddition;
 import com.sample.agent.advices.MethodAdvice;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.asm.Advice;
-import net.bytebuddy.description.method.MethodDescription;
 import net.bytebuddy.description.modifier.Visibility;
 import net.bytebuddy.implementation.MethodCall;
 import net.bytebuddy.implementation.MethodDelegation;
@@ -13,26 +12,46 @@ import net.bytebuddy.matcher.ElementMatchers;
 
 import java.lang.instrument.Instrumentation;
 
-import static net.bytebuddy.matcher.ElementMatchers.named;
-import static net.bytebuddy.matcher.ElementMatchers.isMethod;
-
 public class Agent {
     private static final String INCLUDE_PACKAGE_INSTRUMENT = "com.sample.dl";
     private static final String EXCLUDE_PACKAGE_INSTRUMENT = "com.sample.dl.context";
 
-    public static void premain(String arguments, Instrumentation instrumentation) {
 
-        System.out.println("Start Agent to get running methods");
+    /**
+     * If the agent is attached to a JVM on the start,
+     * this method is invoked before {@code main} method is called.
+     *
+     * @param agentArgs       Agent command line arguments.
+     * @param instrumentation An object to access the JVM instrumentation mechanism.
+     */
+    public static void premain(String agentArgs, Instrumentation instrumentation) {
+
+        System.out.println("Start Premain Agent to instrument a freshly started JV");
+        myIntercept(agentArgs, instrumentation);
+    }
 
 
+    /**
+     * If the agent is attached to an already running JVM,
+     * this method is invoked.
+     *
+     * @param agentArgs       Agent command line arguments.
+     * @param instrumentation An object to access the JVM instrumentation mechanism.
+     */
+    public static void agentmain(String agentArgs, Instrumentation instrumentation) {
+        System.out.println("Start Main Agent to instrument a running JVM!");
+        myIntercept(agentArgs, instrumentation);
+    }
+
+
+    private static void myIntercept(String arguments, Instrumentation instrumentation) {
         new AgentBuilder.Default()
                 .with(new AgentBuilder.InitializationStrategy.SelfInjection.Eager())
-//                .type((ElementMatchers.any()))
                 .type((ElementMatchers.nameStartsWith(INCLUDE_PACKAGE_INSTRUMENT))
                               .and(ElementMatchers.not(ElementMatchers.nameStartsWith(EXCLUDE_PACKAGE_INSTRUMENT))))
                 .transform((builder, typeDescription, classLoader, module) -> builder
-                                   .method(ElementMatchers.any())
-                                   .intercept(Advice.to(MethodAdvice.class))
+                        .method(ElementMatchers.any())
+                        .intercept(Advice.to(MethodAdvice.class))
                         .defineMethod("methodAdding", void.class, Visibility.PUBLIC)
                         .intercept(MethodDelegation.to(MethodAddition.class))
                         .method(ElementMatchers.nameContains("method2"))
@@ -40,5 +59,4 @@ public class Agent {
                                            .andThen(MethodCall.invoke(ElementMatchers.nameContains("methodAdding"))))
                 ).installOn(instrumentation);
     }
-
 }
