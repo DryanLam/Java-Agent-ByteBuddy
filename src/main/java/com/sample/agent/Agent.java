@@ -50,10 +50,11 @@ public class Agent {
     private static void myIntercept(String arguments, Instrumentation instrumentation) {
         new AgentBuilder.Default()
                 .with(new AgentBuilder.InitializationStrategy.SelfInjection.Eager())
-                .with(AgentBuilder.RedefinitionStrategy.RETRANSFORMATION)
                 .type((ElementMatchers.nameStartsWith(INCLUDE_PACKAGE_INSTRUMENT))
                               .and(ElementMatchers.not(ElementMatchers.nameStartsWith(EXCLUDE_PACKAGE_INSTRUMENT))))
                 .transform((builder, typeDescription, classLoader, module) -> builder
+                        .method(ElementMatchers.any())
+                        .intercept(Advice.to(MethodAdvice.class))
                         .method(named("filter"))
                         .intercept(MethodDelegation.to(RequestFilter.class))
                 ).installOn(instrumentation);
