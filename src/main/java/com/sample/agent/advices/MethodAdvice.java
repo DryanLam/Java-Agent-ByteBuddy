@@ -5,20 +5,32 @@ import net.bytebuddy.asm.Advice;
 
 public class MethodAdvice {
 
+
     @Advice.OnMethodEnter
-    static void enterMethods(@Advice.Origin String method) throws Exception {
+    static long enterMethods() throws Exception {
+        long start = System.currentTimeMillis();
+        return start;
     }
 
+
     @Advice.OnMethodExit
-    static void exitMethods(@Advice.Origin String method) throws Exception {
+    static void exitMethods(@Advice.Origin String method, @Advice.Enter long start) throws Exception {
+        // Calculate execution time of each method
+        long end = System.currentTimeMillis();
+
+        // Method name like Class.method
         String st = DataCache.getInstance().getStatus();
         String mName = nameParser(method);
         System.out.println("Exit method: " + mName);
-        System.out.println(st);
+
+        System.out.println("This is Method :" + mName + "took " + (end-start) + " milliseconds");
+
+        System.out.println("Caching status: " + st);
         if ("Caching".equalsIgnoreCase(st)) {
             DataCache.getInstance().addData("method", mName);
         }
     }
+
 
     public static String nameParser(String methodCaught){
         String mf = methodCaught.split("\\(")[0];
