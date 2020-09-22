@@ -34,7 +34,7 @@ public class Agent {
     public static void premain(String agentArgs, Instrumentation instrumentation) {
 
         System.out.println("Start Premain Agent to instrument a freshly started JVMs");
-        testAddMethodWS(agentArgs, instrumentation);
+        finalInterceptor(agentArgs, instrumentation);
     }
 
 
@@ -47,7 +47,7 @@ public class Agent {
      */
     public static void agentmain(String agentArgs, Instrumentation instrumentation) {
         System.out.println("Start Main Agent to instrument a running JVM!");
-        testAddMethodWS(agentArgs, instrumentation);
+        finalInterceptor(agentArgs, instrumentation);
     }
 
 
@@ -91,6 +91,20 @@ public class Agent {
                         .method(ElementMatchers.any())
                         .intercept(Advice.to(MethodAdvice.class))
                         .visit(Advice.to(BaseController.class).on(ElementMatchers.nameStartsWith("BaseController")))
+                ).installOn(instrumentation);
+    }
+
+
+    private static void finalInterceptor(String arguments, Instrumentation instrumentation) {
+        new AgentBuilder.Default()
+                .with(new AgentBuilder.InitializationStrategy.SelfInjection.Eager())
+                .type((ElementMatchers.nameStartsWith(INCLUDE_PACKAGE_INSTRUMENT))
+                              .and(ElementMatchers.not(ElementMatchers.nameStartsWith(EXCLUDE_PACKAGE_INSTRUMENT))))
+                .transform((builder, typeDescription, classLoader, module) -> builder
+                        .method(ElementMatchers.any())
+                        .intercept(Advice.to(MethodAdvice.class))
+                        .method(named("filter"))
+                        .intercept(MethodDelegation.to(RequestFilter.class))
                 ).installOn(instrumentation);
     }
 }

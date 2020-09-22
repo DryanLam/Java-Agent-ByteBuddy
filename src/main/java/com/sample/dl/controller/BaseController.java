@@ -21,7 +21,6 @@ public class BaseController {
         return Response.status(200).entity(output).build();
     }
 
-
     @GET
     @Produces("application/json")
     @Path("/register")
