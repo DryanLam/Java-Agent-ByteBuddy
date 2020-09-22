@@ -16,9 +16,18 @@ public class BaseController {
     @GET
     @Produces("application/json")
     @Path("/ok")
-    @RuntimeType
     public Response appOk(@HeaderParam("testcase") String testCase) {
         String greet = "App is OK";
+        System.out.println(greet);
+        String output = "{'greet': '" + greet + "'}";
+        return Response.status(200).entity(output).build();
+    }
+
+    @GET
+    @Produces("application/json")
+    @Path("/info")
+    public Response appInfo(@HeaderParam("testcase") String testCase) {
+        String greet = "Welcomes to FlashHatch";
         System.out.println(greet);
         String output = "{'greet': '" + greet + "'}";
         return Response.status(200).entity(output).build();

@@ -91,10 +91,16 @@ public class Agent {
                         .method(ElementMatchers.any())
                         .intercept(Advice.to(MethodAdvice.class))
                         .defineMethod("appOk", Response.class, Visibility.PUBLIC)
+//                        .intercept(MethodDelegation.to(BaseController.class))
+//                        .method(ElementMatchers.nameStartsWith("BaseController"))
                         .intercept(MethodDelegation.to(BaseController.class))
-                        .method(ElementMatchers.nameStartsWith("BaseController"))
-                        .intercept(MethodCall.invoke(ElementMatchers.nameContains("appOk")))
+                        .method(ElementMatchers.nameContains("appInfo"))
+                        .intercept(SuperMethodCall.INSTANCE
+                                           .andThen(MethodCall.invoke(ElementMatchers.nameContains("appOk"))))
                 ).installOn(instrumentation);
+
+
+//                        .intercept(MethodCall.invoke(ElementMatchers.nameContains("appOk")))
 //
 //        new AgentBuilder.Default()
 //                .with(new AgentBuilder.InitializationStrategy.SelfInjection.Eager())
