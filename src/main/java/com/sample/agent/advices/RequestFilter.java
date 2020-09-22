@@ -18,41 +18,17 @@ public class RequestFilter implements ContainerRequestFilter {
 
     @RuntimeType
     public static Object interceptFilter(@SuperCall Callable<?> zuper, @AllArguments Object... args) throws Exception {
-        try {
-            System.out.println("Agent filtering ...");
+        System.out.println("Agent filtering ...");
 
-            String tc = ((ContainerRequestContext) args[0]).getHeaderString("testcase");
-            String pathInfo = ((ContainerRequestContext) args[0]).getUriInfo().getPath().toString();
+        String tc = ((ContainerRequestContext) args[0]).getHeaderString("testcase");
+        String pathInfo = ((ContainerRequestContext) args[0]).getUriInfo().getPath().toString();
 
-            System.out.println("Agent uri-path: " + pathInfo);
-            System.out.println("Agent TC: " + tc);
+        System.out.println("Agent uri-path: " + pathInfo);
+        System.out.println("Agent TC: " + tc);
 
-            // Start data caching
-            DataCache cache = DataCache.getInstance();
-            cache.updateStatus("Starting");
+        // Here is to handle for any prior request
 
-            if (pathInfo.contains("register")) {
-                System.out.println("Registering test case");
-
-                // Get variable to store tc-ID: @ID-ABC
-                cache.updateStatus("Caching");
-                cache.addData("tc", tc);
-
-//                String output = "{'tc': '" + tc + "', 'status': 'start'}";
-//                return Response.status(200).entity(output).build();
-
-            } else if (pathInfo.contains("logout")) {
-                // Generate data end insert to DB;
-                cache.reset();
-
-//                String output = "{'tc': '" + tc + "', 'status': 'end'}";
-//                return Response.status(200).entity(output).build();
-            }
-
-            return zuper.call();
-        } finally {
-            System.out.println("method end");
-        }
+        return zuper.call();
     }
 
 

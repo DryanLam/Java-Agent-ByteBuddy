@@ -3,7 +3,6 @@ package com.sample.agent;
 import com.sample.agent.advices.MethodAddition;
 import com.sample.agent.advices.MethodAdvice;
 import com.sample.agent.advices.RequestFilter;
-import com.sample.agent.advices.TcAdvice;
 import com.sample.dl.controller.BaseController;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.asm.Advice;
@@ -12,11 +11,7 @@ import net.bytebuddy.implementation.MethodCall;
 import net.bytebuddy.implementation.MethodDelegation;
 import net.bytebuddy.implementation.SuperMethodCall;
 import net.bytebuddy.matcher.ElementMatchers;
-
-import javax.ws.rs.Path;
-import javax.ws.rs.core.Response;
 import java.lang.instrument.Instrumentation;
-
 import static net.bytebuddy.matcher.ElementMatchers.named;
 
 public class Agent {

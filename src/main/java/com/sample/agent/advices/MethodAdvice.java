@@ -15,28 +15,18 @@ public class MethodAdvice {
 
     //@Advice.Origin("#t.#m") String detaildOrigin
     @Advice.OnMethodExit
-    static void exitMethods(@Advice.Origin String method, @Advice.Enter long start) throws Exception {
+    static void exitMethods(@Advice.Enter long start, @Advice.Origin("#t") String className, @Advice.Origin("#m") String methodName) throws Exception {
         // Calculate execution time of each method
         long end = System.currentTimeMillis();
 
         // Method name like Class.method
-        String st = DataCache.getInstance().getStatus();
-        String mName = nameParser(method);
-        System.out.println("Exit method: " + mName);
+        String lastName = className.substring(className.lastIndexOf(".") + 1);
+        String coverName = lastName + "." + methodName;
 
-        System.out.println("This is Method :" + mName + "took " + (end-start) + " milliseconds");
+        System.out.println("This is Method : " + coverName + " took " + (end - start) + " milliseconds");
 
-        System.out.println("Caching status: " + st);
-        if ("Caching".equalsIgnoreCase(st)) {
-            DataCache.getInstance().addData("method", mName);
+        if ("Caching".equalsIgnoreCase(DataCache.getInstance().getStatus())) {
+            DataCache.getInstance().addData("coverName", coverName);
         }
-    }
-
-
-    public static String nameParser(String methodCaught){
-        String mf = methodCaught.split("\\(")[0];
-        String[] lstName = mf.split("\\.");
-        String m = lstName[lstName.length - 2] + "." + lstName[lstName.length - 1];
-        return m;
     }
 }
