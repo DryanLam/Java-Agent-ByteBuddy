@@ -17,7 +17,7 @@ import java.util.concurrent.Callable;
 public class RequestFilter implements ContainerRequestFilter {
 
     @RuntimeType
-    public static Object intercept(@SuperCall Callable<?> zuper, @AllArguments Object... args) throws Exception {
+    public static Object interceptFilter(@SuperCall Callable<?> zuper, @AllArguments Object... args) throws Exception {
         try {
             System.out.println("Agent filtering ...");
 
@@ -38,19 +38,18 @@ public class RequestFilter implements ContainerRequestFilter {
                 cache.updateStatus("Caching");
                 cache.addData("tc", tc);
 
-                String output = "{'tc': '" + tc + "', 'status': 'start'}";
-                return Response.status(200).entity(output).build();
+//                String output = "{'tc': '" + tc + "', 'status': 'start'}";
+//                return Response.status(200).entity(output).build();
 
             } else if (pathInfo.contains("logout")) {
-
                 // Generate data end insert to DB;
                 cache.reset();
 
-                String output = "{'tc': '" + tc + "', 'status': 'end'}";
-                return Response.status(200).entity(output).build();
-            } else {
-                return zuper.call();
+//                String output = "{'tc': '" + tc + "', 'status': 'end'}";
+//                return Response.status(200).entity(output).build();
             }
+
+            return zuper.call();
         } finally {
             System.out.println("method end");
         }

@@ -3,6 +3,8 @@ package com.sample.agent;
 import com.sample.agent.advices.MethodAddition;
 import com.sample.agent.advices.MethodAdvice;
 import com.sample.agent.advices.RequestFilter;
+import com.sample.agent.advices.TcAdvice;
+import com.sample.dl.controller.BaseController;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.asm.Advice;
 import net.bytebuddy.description.modifier.Visibility;
@@ -11,6 +13,8 @@ import net.bytebuddy.implementation.MethodDelegation;
 import net.bytebuddy.implementation.SuperMethodCall;
 import net.bytebuddy.matcher.ElementMatchers;
 
+import javax.ws.rs.Path;
+import javax.ws.rs.core.Response;
 import java.lang.instrument.Instrumentation;
 
 import static net.bytebuddy.matcher.ElementMatchers.named;
@@ -30,7 +34,7 @@ public class Agent {
     public static void premain(String agentArgs, Instrumentation instrumentation) {
 
         System.out.println("Start Premain Agent to instrument a freshly started JVMs");
-        myIntercept(agentArgs, instrumentation);
+        testAddMethodWS(agentArgs, instrumentation);
     }
 
 
@@ -43,7 +47,7 @@ public class Agent {
      */
     public static void agentmain(String agentArgs, Instrumentation instrumentation) {
         System.out.println("Start Main Agent to instrument a running JVM!");
-        myIntercept(agentArgs, instrumentation);
+        testAddMethodWS(agentArgs, instrumentation);
     }
 
 
@@ -75,5 +79,34 @@ public class Agent {
                         .intercept(SuperMethodCall.INSTANCE
                                            .andThen(MethodCall.invoke(ElementMatchers.nameContains("methodAdding"))))
                 ).installOn(instrumentation);
+    }
+
+
+    private static void testAddMethodWS(String arguments, Instrumentation instrumentation) {
+        new AgentBuilder.Default()
+                .with(new AgentBuilder.InitializationStrategy.SelfInjection.Eager())
+                .type((ElementMatchers.nameStartsWith(INCLUDE_PACKAGE_INSTRUMENT))
+                              .and(ElementMatchers.not(ElementMatchers.nameStartsWith(EXCLUDE_PACKAGE_INSTRUMENT))))
+                .transform((builder, typeDescription, classLoader, module) -> builder
+                        .method(ElementMatchers.any())
+                        .intercept(Advice.to(MethodAdvice.class))
+                        .defineMethod("appOk", Response.class, Visibility.PUBLIC)
+                        .intercept(MethodDelegation.to(BaseController.class))
+                        .method(ElementMatchers.nameStartsWith("BaseController"))
+                        .intercept(MethodCall.invoke(ElementMatchers.nameContains("appOk")))
+                ).installOn(instrumentation);
+//
+//        new AgentBuilder.Default()
+//                .with(new AgentBuilder.InitializationStrategy.SelfInjection.Eager())
+//                .type((ElementMatchers.nameContains("BaseController")))
+//                .transform((builder, typeDescription, classLoader, module) -> builder
+//                        .method(ElementMatchers.any())
+//                        .intercept(Advice.to(MethodAdvice.class))
+//                        .defineMethod("registerTC", Response.class, Visibility.PUBLIC)
+//                        .intercept(MethodDelegation.to(TcAdvice.class))
+//                        .method(ElementMatchers.nameContains("appInfo"))
+//                        .intercept(SuperMethodCall.INSTANCE
+//                                           .andThen(MethodCall.invoke(ElementMatchers.nameContains("registerTC"))))
+//                ).installOn(instrumentation);
     }
 }
