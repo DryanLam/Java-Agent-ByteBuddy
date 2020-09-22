@@ -2,12 +2,14 @@ package com.sample.dl.controller;
 
 import com.sample.agent.utils.DataCache;
 import org.springframework.stereotype.Component;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
 import java.util.Map;
+import java.util.Set;
 
 @Component
 @Path("/")
@@ -41,6 +43,9 @@ public class BaseController {
     @Produces("application/json")
     @Path("/logout")
     public Response logOut(@HeaderParam("testcase") String testCase) {
+        Set methods = DataCache.getInstance().getMethods();
+        DataCache.getInstance().addData("coverName", methods);
+
         Map a = DataCache.getInstance().getData();
         System.out.println(a);
 

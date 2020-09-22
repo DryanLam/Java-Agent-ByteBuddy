@@ -1,8 +1,6 @@
 package com.sample.agent.utils;
 
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import java.util.*;
 
 public class DataCache {
 
@@ -10,9 +8,11 @@ public class DataCache {
 
     public String STATUS;
     public Map dataCaching;
+    public Set methodCatching;
 
     private DataCache() {
         dataCaching = new LinkedHashMap();
+        methodCatching = new TreeSet<>();
     }
 
     public static DataCache getInstance() {
@@ -23,7 +23,16 @@ public class DataCache {
         return INSTANCE;
     }
 
-    public void addData(String key, String value) {
+    public void addMethod(String coverMethod){
+        System.out.println("Add method: " + coverMethod);
+        methodCatching.add(coverMethod);
+    }
+
+    public Set getMethods(){
+        return methodCatching;
+    }
+
+    public void addData(String key, Object value) {
         System.out.println("Add: " + key + " Value: " + value);
         dataCaching.put(key, value);
     }
@@ -34,6 +43,7 @@ public class DataCache {
 
     public void reset() {
         dataCaching.clear();
+        methodCatching.clear();
         System.out.println("Cleared cache");
     }
 

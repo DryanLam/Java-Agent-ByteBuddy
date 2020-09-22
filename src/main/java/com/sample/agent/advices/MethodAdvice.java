@@ -26,7 +26,7 @@ public class MethodAdvice {
         System.out.println("This is Method : " + coverName + " took " + (end - start) + " milliseconds");
 
         if ("Caching".equalsIgnoreCase(DataCache.getInstance().getStatus())) {
-            DataCache.getInstance().addData("coverName", coverName);
+            DataCache.getInstance().addMethod(coverName);
         }
     }
 }
