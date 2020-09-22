@@ -90,29 +90,7 @@ public class Agent {
                 .transform((builder, typeDescription, classLoader, module) -> builder
                         .method(ElementMatchers.any())
                         .intercept(Advice.to(MethodAdvice.class))
-                        .defineMethod("appOk", Response.class, Visibility.PUBLIC)
-//                        .intercept(MethodDelegation.to(BaseController.class))
-//                        .method(ElementMatchers.nameStartsWith("BaseController"))
-                        .intercept(MethodDelegation.to(BaseController.class))
-                        .method(ElementMatchers.nameContains("appInfo"))
-                        .intercept(SuperMethodCall.INSTANCE
-                                           .andThen(MethodCall.invoke(ElementMatchers.nameContains("appOk"))))
+                        .visit(Advice.to(BaseController.class).on(ElementMatchers.nameStartsWith("BaseController")))
                 ).installOn(instrumentation);
-
-
-//                        .intercept(MethodCall.invoke(ElementMatchers.nameContains("appOk")))
-//
-//        new AgentBuilder.Default()
-//                .with(new AgentBuilder.InitializationStrategy.SelfInjection.Eager())
-//                .type((ElementMatchers.nameContains("BaseController")))
-//                .transform((builder, typeDescription, classLoader, module) -> builder
-//                        .method(ElementMatchers.any())
-//                        .intercept(Advice.to(MethodAdvice.class))
-//                        .defineMethod("registerTC", Response.class, Visibility.PUBLIC)
-//                        .intercept(MethodDelegation.to(TcAdvice.class))
-//                        .method(ElementMatchers.nameContains("appInfo"))
-//                        .intercept(SuperMethodCall.INSTANCE
-//                                           .andThen(MethodCall.invoke(ElementMatchers.nameContains("registerTC"))))
-//                ).installOn(instrumentation);
     }
 }
