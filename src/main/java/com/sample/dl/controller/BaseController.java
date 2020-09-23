@@ -1,6 +1,10 @@
 package com.sample.dl.controller;
 
+import com.mongodb.BasicDBObject;
+import com.mongodb.DB;
+import com.mongodb.DBCollection;
 import com.sample.agent.utils.DataCache;
+import com.sample.agent.utils.MongoDb;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.GET;
@@ -43,16 +47,27 @@ public class BaseController {
     @Produces("application/json")
     @Path("/logout")
     public Response logOut(@HeaderParam("testcase") String testCase) {
-        Set methods = DataCache.getInstance().getMethods();
-        DataCache.getInstance().addData("coverName", methods);
+        // Write data to MongoDB
+        DataCache.getInstance().addData("coverName", DataCache.getInstance().getMethods());
+        writeDataToMongoDB(DataCache.getInstance().getData());
+        System.out.println("Wrote to MongoDB");
 
-        Map a = DataCache.getInstance().getData();
-        System.out.println(a);
-
+        // Clear data cache
         DataCache.getInstance().reset();
+
+        // Println
         String greet = "Data clearing!!!";
         System.out.println(greet);
+
+        // Return Response
         String output = "{'greet': '" + greet + "', 'status': 'clean'}";
         return Response.status(200).entity(output).build();
+    }
+
+
+    private void writeDataToMongoDB(Map data){
+        MongoDb mD = new MongoDb();
+        DBCollection col = mD.getDB("FlashHatch").getCollection("TestCases");
+        col.insert(new BasicDBObject(data));
     }
 }
