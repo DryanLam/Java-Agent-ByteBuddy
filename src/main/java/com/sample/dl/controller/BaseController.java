@@ -13,6 +13,7 @@ import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.StreamingOutput;
 import java.util.*;
 
 @Component
@@ -48,7 +49,9 @@ public class BaseController {
     @Path("/logout")
     public Response logOut(@HeaderParam("testcase") String testCase) {
         try {
-            if (DataCache.getInstance().getStatus().equalsIgnoreCase("Caching")) {
+            String st = DataCache.getInstance().getStatus();
+            System.out.println(st);
+            if (st.equalsIgnoreCase("Caching")) {
                 // Write data to MongoDB
                 DataCache.getInstance().addData("coverName", DataCache.getInstance().getMethods());
                 writeDataToMongoDB(DataCache.getInstance().getData());
@@ -68,11 +71,8 @@ public class BaseController {
 
 
     private void writeDataToMongoDB(Map data) {
-
         // Handle TC-ID before writing to DB
         String tcHeader = data.get("tc").toString().trim();
-
-        System.out.println(tcHeader);
 
         Set TCs = new TreeSet<String>();
         TCs.addAll(Arrays.asList(tcHeader.split(",")));
@@ -85,22 +85,26 @@ public class BaseController {
         // Insert or Update
         DBObject cursorTCs = col.findOne(new BasicDBObject("tc", TCs));
         if (cursorTCs != null) {
-            // Get already list
-            Set dbTCs = new TreeSet<String>();
-            dbTCs.addAll((List) cursorTCs.get("coverName"));
+            // Get already listof methods
+            Set dbMethods = new TreeSet<String>();
+            dbMethods.addAll((List) cursorTCs.get("coverName"));
 
-            // Get latest caching data
-            Set cachedTCs = new TreeSet<String>();
-            cachedTCs.addAll((List) data.get("coverName"));
+            // Get latest caching list of methods
+            Set cachedMethods = new TreeSet<String>();
+            cachedMethods.addAll((TreeSet) data.get("coverName"));
 
-            // Update fo new
-            if (!dbTCs.equals(cachedTCs)) {
-                dbTCs.addAll(cachedTCs);
-                data.put("coverName", dbTCs);
-            } else {
-                return;
+            // Update for new
+            if (!dbMethods.equals(cachedMethods)) {
+                dbMethods.addAll(cachedMethods);
+                data.put("coverName", dbMethods);
+                col.update(new BasicDBObject("tc", TCs), new BasicDBObject(data));
+                System.out.println("--------------------------- Update DB " + data);
             }
+        } else {
+            col.insert(new BasicDBObject(data));
+            System.out.println("--------------------------- Insert DB " + data);
         }
-        col.insert(new BasicDBObject(data));
     }
 }
+
+// https://www.mongodb.com/blog/post/quick-start-java-and-mongodb--update-operations?utm_campaign=updatejava&utm_source=twitter&utm_medium=organic_social
