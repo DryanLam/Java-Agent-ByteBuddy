@@ -12,7 +12,7 @@ public class DataCache {
 
     private DataCache() {
         dataCaching = new LinkedHashMap();
-        methodCatching = new TreeSet<>();
+        methodCatching = new TreeSet<String>();
     }
 
     public static DataCache getInstance() {

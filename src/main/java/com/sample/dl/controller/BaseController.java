@@ -3,6 +3,7 @@ package com.sample.dl.controller;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
+import com.mongodb.DBObject;
 import com.sample.agent.utils.DataCache;
 import com.sample.agent.utils.MongoDb;
 import org.springframework.stereotype.Component;
@@ -12,8 +13,7 @@ import javax.ws.rs.HeaderParam;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.Response;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Component
 @Path("/")
@@ -65,9 +65,36 @@ public class BaseController {
     }
 
 
-    private void writeDataToMongoDB(Map data){
+    private void writeDataToMongoDB(Map data) {
+
+        // Hanle TC-ID before writing to DB
+        String tcHeader = data.get("tc").toString().trim();
+        Set TCs = new TreeSet<String>();
+        TCs.addAll(Arrays.asList(tcHeader.split(",")));
+
+        // Connect Mongo DB
         MongoDb mD = new MongoDb();
         DBCollection col = mD.getDB("FlashHatch").getCollection("TestCases");
+
+        // Insert or Update
+        DBObject cursorTCs = col.findOne(TCs);
+        if (cursorTCs != null) {
+            // Get already list
+            Set dbTCs = new TreeSet<String>();
+            dbTCs.addAll((List) cursorTCs.get("coverName"));
+
+            // Get latest caching data
+            Set cachedTCs = new TreeSet<String>();
+            cachedTCs.addAll((List) data.get("coverName"));
+
+            // Update fo new
+            if (!dbTCs.equals(cachedTCs)) {
+                dbTCs.addAll(cachedTCs);
+                data.put("coverName", dbTCs);
+            } else{
+                return;
+            }
+        }
         col.insert(new BasicDBObject(data));
     }
 }
