@@ -47,37 +47,43 @@ public class BaseController {
     @Produces("application/json")
     @Path("/logout")
     public Response logOut(@HeaderParam("testcase") String testCase) {
-        // Write data to MongoDB
-        DataCache.getInstance().addData("coverName", DataCache.getInstance().getMethods());
-        writeDataToMongoDB(DataCache.getInstance().getData());
-        System.out.println("Wrote to MongoDB");
+        try {
+            if (DataCache.getInstance().getStatus().equalsIgnoreCase("Caching")) {
+                // Write data to MongoDB
+                DataCache.getInstance().addData("coverName", DataCache.getInstance().getMethods());
+                writeDataToMongoDB(DataCache.getInstance().getData());
+                System.out.println("Wrote to MongoDB");
+            }
+        } finally {
+            // Clear data cache
+            DataCache.getInstance().reset();
 
-        // Clear data cache
-        DataCache.getInstance().reset();
-
-        // Println
-        String greet = "Data clearing!!!";
-        System.out.println(greet);
-
-        // Return Response
-        String output = "{'greet': '" + greet + "', 'status': 'clean'}";
-        return Response.status(200).entity(output).build();
+            // Println
+            String greet = "Data clearing!!!";
+            // Return Response
+            String output = "{'greet': '" + greet + "', 'status': 'clean'}";
+            return Response.status(200).entity(output).build();
+        }
     }
 
 
     private void writeDataToMongoDB(Map data) {
 
-        // Hanle TC-ID before writing to DB
+        // Handle TC-ID before writing to DB
         String tcHeader = data.get("tc").toString().trim();
+
+        System.out.println(tcHeader);
+
         Set TCs = new TreeSet<String>();
         TCs.addAll(Arrays.asList(tcHeader.split(",")));
+        data.put("tc", TCs);
 
         // Connect Mongo DB
         MongoDb mD = new MongoDb();
         DBCollection col = mD.getDB("FlashHatch").getCollection("TestCases");
 
         // Insert or Update
-        DBObject cursorTCs = col.findOne(TCs);
+        DBObject cursorTCs = col.findOne(new BasicDBObject("tc", TCs));
         if (cursorTCs != null) {
             // Get already list
             Set dbTCs = new TreeSet<String>();
@@ -91,7 +97,7 @@ public class BaseController {
             if (!dbTCs.equals(cachedTCs)) {
                 dbTCs.addAll(cachedTCs);
                 data.put("coverName", dbTCs);
-            } else{
+            } else {
                 return;
             }
         }

@@ -44,6 +44,7 @@ public class DataCache {
     public void reset() {
         dataCaching.clear();
         methodCatching.clear();
+        STATUS = "clean";
         System.out.println("Cleared cache");
     }
 
