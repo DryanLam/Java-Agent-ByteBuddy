@@ -78,7 +78,7 @@ public class BaseController {
 
         // Connect Mongo DB
         MongoDb mD = new MongoDb();
-        DBCollection col = mD.getDB("FlashHatch").getCollection("TestCases");
+        DBCollection col = mD.getDB("KataConnect").getCollection("TestCases");
 
         // Insert or Update
         DBObject cursorTCs = col.findOne(new BasicDBObject("tc", TCs));

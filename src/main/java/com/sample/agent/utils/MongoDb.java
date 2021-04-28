@@ -10,8 +10,8 @@ public class MongoDb {
     final String CONNECTION = "54.254.209.206";
     final int PORT = 27017;
 
-    MongoClient dbClient;
-    DB db;
+    private MongoClient dbClient;
+    private DB db;
 
     public MongoDb() {
         dbClient = new MongoClient(CONNECTION, PORT);

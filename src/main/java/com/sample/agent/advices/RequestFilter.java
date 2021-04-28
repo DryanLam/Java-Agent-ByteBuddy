@@ -1,6 +1,5 @@
 package com.sample.agent.advices;
 
-import com.sample.agent.utils.DataCache;
 import net.bytebuddy.implementation.bind.annotation.AllArguments;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bind.annotation.SuperCall;
@@ -8,7 +7,6 @@ import net.bytebuddy.implementation.bind.annotation.SuperCall;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
 import javax.ws.rs.container.PreMatching;
-import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.util.concurrent.Callable;
 
