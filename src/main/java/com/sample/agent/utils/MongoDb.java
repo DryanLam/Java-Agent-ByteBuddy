@@ -2,11 +2,12 @@ package com.sample.agent.utils;
 
 import com.mongodb.DB;
 import com.mongodb.MongoClient;
+
 import java.util.List;
 
 public class MongoDb {
 
-    final String CONNECTION = "localhost";
+    final String CONNECTION = "54.254.209.206";
     final int PORT = 27017;
 
     MongoClient dbClient;
