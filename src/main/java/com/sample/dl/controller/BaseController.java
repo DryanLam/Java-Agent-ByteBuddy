@@ -22,7 +22,7 @@ public class BaseController {
     @Produces("application/json")
     @Path("/info")
     public Response appInfo(@HeaderParam("testcase") String testCase) {
-        String greet = "WARNING: This ApP is HACKED!!!";
+        String greet = "WARNING: This ApP is HACKED to PROFILING!!!";
         System.out.println(greet);
         String output = "{'greet': '" + greet + "', 'status': 'hacked'}";
         return Response.status(200).entity(output).build();
