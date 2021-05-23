@@ -33,9 +33,9 @@ public class BaseController {
     @Path("/register")
     public Response registerTestcase(@HeaderParam("testcase") String testCase) {
         DataCache.getInstance().updateStatus("Caching");
-        DataCache.getInstance().addData("tc", testCase);
+        DataCache.getInstance().addData("Tags", testCase);
 
-        String greet = "App is OK for caching data";
+        String greet = "App is OK for caching data.";
         System.out.println(greet);
         String output = "{'greet': '" + greet + "', 'status': 'registered'}";
         return Response.status(200).entity(output).build();
@@ -51,9 +51,9 @@ public class BaseController {
             System.out.println(st);
             if (st.equalsIgnoreCase("Caching")) {
                 // Write data to MongoDB
-                DataCache.getInstance().addData("coverName", DataCache.getInstance().getMethods());
+                DataCache.getInstance().addData("CoverMethods", DataCache.getInstance().getMethods());
                 writeDataToMongoDB(DataCache.getInstance().getData());
-                System.out.println("Wrote to MongoDB");
+                System.out.println("Wrote to MongoDB successfully.");
             }
         } finally {
             // Clear data cache
@@ -70,32 +70,32 @@ public class BaseController {
 
     private void writeDataToMongoDB(Map data) {
         // Handle TC-ID before writing to DB
-        String tcHeader = data.get("tc").toString().trim();
+        String tcHeader = data.get("Tags").toString().trim();
 
         Set TCs = new TreeSet<String>();
         TCs.addAll(Arrays.asList(tcHeader.split(",")));
-        data.put("tc", TCs);
+        data.put("Tags", TCs);
 
         // Connect Mongo DB
         MongoDb mD = new MongoDb();
         DBCollection col = mD.getDB("KataConnect").getCollection("TestCases");
 
         // Insert or Update
-        DBObject cursorTCs = col.findOne(new BasicDBObject("tc", TCs));
+        DBObject cursorTCs = col.findOne(new BasicDBObject("Tags", TCs));
         if (cursorTCs != null) {
-            // Get already listof methods
+            // Get already list of methods
             Set dbMethods = new TreeSet<String>();
-            dbMethods.addAll((List) cursorTCs.get("coverName"));
+            dbMethods.addAll((List) cursorTCs.get("CoverMethods"));
 
             // Get latest caching list of methods
             Set cachedMethods = new TreeSet<String>();
-            cachedMethods.addAll((TreeSet) data.get("coverName"));
+            cachedMethods.addAll((TreeSet) data.get("CoverMethods"));
 
             // Update for new
             if (!dbMethods.equals(cachedMethods)) {
                 dbMethods.addAll(cachedMethods);
-                data.put("coverName", dbMethods);
-                col.update(new BasicDBObject("tc", TCs), new BasicDBObject(data));
+                data.put("CoverMethods", dbMethods);
+                col.update(new BasicDBObject("Tags", TCs), new BasicDBObject(data));
                 System.out.println("--------------------------- Update DB " + data);
             }
         } else {
